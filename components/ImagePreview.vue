@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { useImageCanvas } from '~/composables/useImageCanvas'
 import { useDirectColorProcessing } from '~/composables/useDirectColorProcessing'
+import { useImageDownload } from '~/composables/useImageDownload'
 import { hexToRgb } from '~/utils/colorUtils'
 
 const props = defineProps<{
@@ -16,6 +17,13 @@ const isProcessing = ref(false)
 
 const handleReset = () => {
   emit('reset')
+}
+
+const { downloadCanvasAsImage } = useImageDownload()
+
+const handleDownload = () => {
+  if (!canvasRef.value) return
+  downloadCanvasAsImage(canvasRef.value, 'recolored-image.png')
 }
 
 const { 
@@ -67,14 +75,25 @@ const processingProgress = ref(0)
       <template #header>
         <div class="flex justify-between items-center">
           <div class="text-xl font-medium text-white">Image Preview</div>
-          <UButton
-            color="gray"
-            variant="ghost"
-            icon="i-heroicons-x-mark"
-            size="md"
-            aria-label="Close preview"
-            @click="handleReset"
-          />
+          <div class="flex items-center gap-2">
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-arrow-down-tray"
+              size="md"
+              :disabled="!isCanvasReady || isProcessing"
+              aria-label="Download image"
+              @click="handleDownload"
+            />
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-x-mark"
+              size="md"
+              aria-label="Close preview"
+              @click="handleReset"
+            />
+          </div>
         </div>
       </template>
 
