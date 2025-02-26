@@ -44,6 +44,9 @@ const selectedColorHex = computed(() => {
 const debouncedColorChange = debounce((color: string, newValue: string) => {
   isChanging.value = false
   emit('colorChanged', color, newValue)
+  // Update selected color to the new color after change is complete
+  const newColorKey = `${newColorValue.value.r},${newColorValue.value.g},${newColorValue.value.b}`
+  selectedColor.value = newColorKey
 }, 300)
 
 // Function to emit color changing events in real-time
@@ -93,41 +96,47 @@ const updateRgbValue = (channel: 'r' | 'g' | 'b', value: number) => {
 
       <div class="space-y-4">
         <UFormGroup label="Red">
-          <div class="p-3 rounded-lg bg-red-500/10">
+          <div class="flex items-center gap-4">
             <URange
               v-model="newColorValue.r"
               :min="0"
               :max="255"
               :step="1"
-              class="accent-red-500"
+              color="red"
+              class="flex-1"
               @update:model-value="value => updateRgbValue('r', value)"
             />
+            <span class="text-base font-medium text-right text-red-500">{{ newColorValue.r }}</span>
           </div>
         </UFormGroup>
 
         <UFormGroup label="Green">
-          <div class="p-3 rounded-lg bg-green-500/10">
+          <div class="flex items-center gap-4">
             <URange
               v-model="newColorValue.g"
               :min="0"
               :max="255"
               :step="1"
-              class="accent-green-500"
+              color="green"
+              class="flex-1"
               @update:model-value="value => updateRgbValue('g', value)"
             />
+            <span class="text-base font-medium text-right text-green-500">{{ newColorValue.g }}</span>
           </div>
         </UFormGroup>
 
         <UFormGroup label="Blue">
-          <div class="p-3 rounded-lg bg-blue-500/10">
+          <div class="flex items-center gap-4">
             <URange
               v-model="newColorValue.b"
               :min="0"
               :max="255"
               :step="1"
-              class="accent-blue-500"
+              color="blue"
+              class="flex-1"
               @update:model-value="value => updateRgbValue('b', value)"
             />
+            <span class="text-base font-medium text-right text-blue-500">{{ newColorValue.b }}</span>
           </div>
         </UFormGroup>
       </div>

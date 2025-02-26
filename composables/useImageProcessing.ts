@@ -1,6 +1,6 @@
 import { ref, watch, computed } from 'vue'
 import { hexToRgb } from '~/utils/colorUtils'
-import { processColorChangeAsync } from '~/utils/imageProcessing'
+import { processColorChangeAsync, createColorReplacedImageData } from '~/utils/imageProcessing'
 import { useImageCanvas } from '~/composables/useImageCanvas'
 
 export function useImageProcessing(imageUrl: string) {
@@ -8,6 +8,7 @@ export function useImageProcessing(imageUrl: string) {
   const processingProgress = ref(0)
   const originalImageData = ref<ImageData | null>(null)
   const lastProcessedImageData = ref<ImageData | null>(null)
+  const previewImageData = ref<ImageData | null>(null)
 
   const {
     canvasRef,
@@ -25,6 +26,11 @@ export function useImageProcessing(imageUrl: string) {
         newImageData.width,
         newImageData.height
       )
+      previewImageData.value = new ImageData(
+        new Uint8ClampedArray(newImageData.data),
+        newImageData.width,
+        newImageData.height
+      )
     }
   }, { immediate: true })
 
@@ -32,26 +38,21 @@ export function useImageProcessing(imageUrl: string) {
     if (!imageData.value) return
     const { r, g, b } = hexToRgb(newColorHex)
     const pixelsToUpdate = colorMap.value.get(originalColorKey) || []
-    const pixelsToProcess = isPreview 
-      ? pixelsToUpdate.filter((_, i) => i % 10 === 0)
-      : pixelsToUpdate
     const baseImageData = lastProcessedImageData.value || originalImageData.value || imageData.value
 
     if (isPreview) {
-      const newImageData = new ImageData(
-        new Uint8ClampedArray(baseImageData.data),
-        baseImageData.width,
-        baseImageData.height
+      // For preview, update all pixels immediately in the main thread
+      // since we're working with a separate preview buffer
+      const newImageData = createColorReplacedImageData(
+        baseImageData,
+        pixelsToUpdate,
+        { r, g, b }
       )
-      for (const pixel of pixelsToProcess) {
-        const pixelIndex = (pixel.y * newImageData.width + pixel.x) * 4
-        newImageData.data[pixelIndex] = r
-        newImageData.data[pixelIndex + 1] = g
-        newImageData.data[pixelIndex + 2] = b
-      }
+      previewImageData.value = newImageData
       updateCanvas(newImageData)
       isProcessing.value = false
     } else {
+      isProcessing.value = true
       processColorChangeAsync(
         baseImageData,
         pixelsToUpdate,
@@ -62,6 +63,11 @@ export function useImageProcessing(imageUrl: string) {
         (newImageData) => {
           updateCanvas(newImageData)
           lastProcessedImageData.value = newImageData
+          previewImageData.value = new ImageData(
+            new Uint8ClampedArray(newImageData.data),
+            newImageData.width,
+            newImageData.height
+          )
           isProcessing.value = false
           processingProgress.value = 0
         }
