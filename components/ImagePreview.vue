@@ -35,12 +35,23 @@ onMounted(() => {
   initCanvas()
 })
 
-const handleColorChanged = async (originalColor: { r: number, g: number, b: number }, newColorHex: string) => {
+const handleColorChanged = async (
+  originalColor: { r: number, g: number, b: number },
+  newColorHex: string,
+  includeSimilar: boolean,
+  similarityThreshold: number
+) => {
   isProcessing.value = true
   const newColor = hexToRgb(newColorHex)
-  const newImageData = await applyColorChange(originalColor, newColor, (progress) => {
-    processingProgress.value = progress
-  })
+  const newImageData = await applyColorChange(
+    originalColor,
+    newColor,
+    includeSimilar,
+    similarityThreshold,
+    (progress) => {
+      processingProgress.value = progress
+    }
+  )
   if (newImageData) {
     updateCanvas(newImageData)
   }

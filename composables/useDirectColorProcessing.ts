@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { quantizeColor } from '~/utils/colorUtils'
+import { quantizeColor, colorDistance } from '~/utils/colorUtils'
 
 export type ColorCount = {
   color: string
@@ -34,6 +34,8 @@ export function useDirectColorProcessing(imageData: Ref<ImageData | null>) {
   const applyColorChange = async (
     originalColor: { r: number; g: number; b: number },
     newColor: { r: number; g: number; b: number },
+    includeSimilar = false,
+    similarityThreshold = 30,
     onProgress?: (progress: number) => void
   ) => {
     if (!imageData.value) return null
@@ -63,12 +65,13 @@ export function useDirectColorProcessing(imageData: Ref<ImageData | null>) {
         const currentG = quantizeColor(data[j + 1], levels)
         const currentB = quantizeColor(data[j + 2], levels)
 
-        if (
-          currentR === targetR &&
-          currentG === targetG &&
-          currentB === targetB
-        ) {
-          // Apply the new color without quantization
+        const isExactMatch = currentR === targetR && currentG === targetG && currentB === targetB
+        const isSimilar = includeSimilar && colorDistance(
+          currentR, currentG, currentB,
+          targetR, targetG, targetB
+        ) <= similarityThreshold
+
+        if (isExactMatch || isSimilar) {
           data[j] = newColor.r
           data[j + 1] = newColor.g
           data[j + 2] = newColor.b

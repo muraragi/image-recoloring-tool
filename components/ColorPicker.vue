@@ -7,11 +7,13 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  colorChanged: [originalColor: { r: number, g: number, b: number }, newColor: string]
+  colorChanged: [originalColor: { r: number, g: number, b: number }, newColor: string, includeSimilar: boolean, similarityThreshold: number]
 }>()
 
 const selectedColor = ref<null | { key: string; rgb: { r: number; g: number; b: number }; hexColor: string; pixelCount: number }>(null)
 const newColorValue = ref({ r: 0, g: 0, b: 0 })
+const includeSimilarColors = ref(false)
+const similarityThreshold = ref(30)
 
 const colorList = computed(() => {
   return props.colors.map(({ color, count }) => {
@@ -38,7 +40,7 @@ const selectedColorHex = computed(() => {
 const handleColorChange = () => {
   if (selectedColor.value) {
     const newHex = selectedColorHex.value
-    emit('colorChanged', selectedColor.value.rgb, newHex)
+    emit('colorChanged', selectedColor.value.rgb, newHex, includeSimilarColors.value, similarityThreshold.value)
     const newColorKey = `${newColorValue.value.r},${newColorValue.value.g},${newColorValue.value.b}`
     selectedColor.value = {
       key: newColorKey,
@@ -98,6 +100,33 @@ const formatPixelCount = (count: number) => {
       </div>
 
       <div class="space-y-4">
+        <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <UCheckbox v-model="includeSimilarColors" class="h-5 w-5" />
+              <span class="text-sm font-medium text-gray-200">Include similar colors</span>
+            </div>
+            <UBadge v-if="includeSimilarColors" color="primary" variant="subtle" size="sm">
+              Active
+            </UBadge>
+          </div>
+
+          <div v-if="includeSimilarColors" class="space-y-2 mt-4">
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-gray-400">Similarity Threshold</span>
+              <UBadge color="white" variant="subtle" size="xs">{{ similarityThreshold }}%</UBadge>
+            </div>
+            <URange
+              v-model="similarityThreshold"
+              :min="1"
+              :max="100"
+              :step="1"
+              color="primary"
+              class="flex-1"
+            />
+          </div>
+        </div>
+
         <UFormGroup label="Red">
           <div class="flex items-center gap-4">
             <URange
