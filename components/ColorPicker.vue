@@ -1,30 +1,26 @@
 <script lang="ts" setup>
 import { parseColorKey, rgbToHex } from '~/utils/colorUtils'
-import { debounce } from 'lodash-es'
 
 const props = defineProps<{
-  colorMap: ColorMap
+  colors: Set<string>
 }>()
 
 const emit = defineEmits<{
-  colorChanged: [originalColor: string, newColor: string]
+  colorChanged: [originalColor: { r: number, g: number, b: number }, newColor: string]
 }>()
 
 const selectedColor = ref<string | null>(null)
 const newColorValue = ref({ r: 0, g: 0, b: 0 })
 
-// Convert colorMap to array for easier rendering
 const colorList = computed(() => {
-  return Object.entries(props.colorMap).map(([colorKey, pixels]) => {
+  return Array.from(props.colors).map(colorKey => {
     const { r, g, b } = parseColorKey(colorKey)
-    const pixelCount = pixels.length
     return {
       key: colorKey,
       rgb: { r, g, b },
-      hexColor: rgbToHex(r, g, b),
-      pixelCount
+      hexColor: rgbToHex(r, g, b)
     }
-  }).sort((a, b) => b.pixelCount - a.pixelCount)
+  })
 })
 
 const handleColorSelect = (colorKey: string) => {
@@ -38,12 +34,11 @@ const selectedColorHex = computed(() => {
   return rgbToHex(newColorValue.value.r, newColorValue.value.g, newColorValue.value.b)
 })
 
-// Function to emit color changes
 const handleColorChange = () => {
   if (selectedColor.value) {
     const newHex = selectedColorHex.value
-    emit('colorChanged', selectedColor.value, newHex)
-    // Update selected color to the new color after change is complete
+    const originalColor = parseColorKey(selectedColor.value)
+    emit('colorChanged', originalColor, newHex)
     const newColorKey = `${newColorValue.value.r},${newColorValue.value.g},${newColorValue.value.b}`
     selectedColor.value = newColorKey
   }

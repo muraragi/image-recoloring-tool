@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useImageProcessing } from '~/composables/useImageProcessing'
+import { useImageCanvas } from '~/composables/useImageCanvas'
+import { useDirectColorProcessing } from '~/composables/useDirectColorProcessing'
+import { hexToRgb } from '~/utils/colorUtils'
 
 const props = defineProps<{
   imageUrl: string
@@ -19,21 +21,33 @@ const handleReset = () => {
 const { 
   canvasRef, 
   isCanvasReady, 
-  initCanvas, 
-  colorMap,
-  applyColorChange,
-  processingProgress
-} = useImageProcessing(props.imageUrl)
+  initCanvas,
+  imageData,
+  updateCanvas
+} = useImageCanvas(computed(() => props.imageUrl))
+
+const {
+  quantizedColors,
+  applyColorChange
+} = useDirectColorProcessing(imageData)
 
 onMounted(() => {
   initCanvas()
 })
 
-const handleColorChanged = async (originalColorKey: string, newColorHex: string) => {
+const handleColorChanged = async (originalColor: { r: number, g: number, b: number }, newColorHex: string) => {
   isProcessing.value = true
-  await applyColorChange(originalColorKey, newColorHex)
+  const newColor = hexToRgb(newColorHex)
+  const newImageData = await applyColorChange(originalColor, newColor, (progress) => {
+    processingProgress.value = progress
+  })
+  if (newImageData) {
+    updateCanvas(newImageData)
+  }
   isProcessing.value = false
 }
+
+const processingProgress = ref(0)
 </script>
 
 <template>
@@ -73,7 +87,7 @@ const handleColorChanged = async (originalColorKey: string, newColorHex: string)
         <div class="text-xl font-medium text-white py-1">Color Editor</div>
       </template>
       <ColorPicker
-        :color-map="colorMap"
+        :colors="quantizedColors"
         @color-changed="handleColorChanged"
       />
     </UCard>
