@@ -1,13 +1,18 @@
 import { ref, computed } from 'vue'
 import { quantizeColor } from '~/utils/colorUtils'
 
+export type ColorCount = {
+  color: string
+  count: number
+}
+
 export function useDirectColorProcessing(imageData: Ref<ImageData | null>) {
   const colorQuantizationLevel = ref(8)
 
   const quantizedColors = computed(() => {
-    if (!imageData.value) return new Set<string>()
+    if (!imageData.value) return []
 
-    const colors = new Set<string>()
+    const colorCounts = new Map<string, number>()
     const data = imageData.value.data
     const levels = colorQuantizationLevel.value
 
@@ -15,10 +20,15 @@ export function useDirectColorProcessing(imageData: Ref<ImageData | null>) {
       const r = quantizeColor(data[i], levels)
       const g = quantizeColor(data[i + 1], levels)
       const b = quantizeColor(data[i + 2], levels)
-      colors.add(`${r},${g},${b}`)
+      const colorKey = `${r},${g},${b}`
+
+      colorCounts.set(colorKey, (colorCounts.get(colorKey) || 0) + 1)
     }
 
-    return colors
+    // Convert to array and sort by count
+    return Array.from(colorCounts.entries())
+      .map(([color, count]) => ({ color, count }))
+      .sort((a, b) => b.count - a.count)
   })
 
   const applyColorChange = async (

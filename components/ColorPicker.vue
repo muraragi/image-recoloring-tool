@@ -1,32 +1,33 @@
 <script lang="ts" setup>
 import { parseColorKey, rgbToHex } from '~/utils/colorUtils'
+import type { ColorCount } from '~/composables/useDirectColorProcessing'
 
 const props = defineProps<{
-  colors: Set<string>
+  colors: ColorCount[]
 }>()
 
 const emit = defineEmits<{
   colorChanged: [originalColor: { r: number, g: number, b: number }, newColor: string]
 }>()
 
-const selectedColor = ref<string | null>(null)
+const selectedColor = ref<null | { key: string; rgb: { r: number; g: number; b: number }; hexColor: string; pixelCount: number }>(null)
 const newColorValue = ref({ r: 0, g: 0, b: 0 })
 
 const colorList = computed(() => {
-  return Array.from(props.colors).map(colorKey => {
-    const { r, g, b } = parseColorKey(colorKey)
+  return props.colors.map(({ color, count }) => {
+    const { r, g, b } = parseColorKey(color)
     return {
-      key: colorKey,
+      key: color,
       rgb: { r, g, b },
-      hexColor: rgbToHex(r, g, b)
+      hexColor: rgbToHex(r, g, b),
+      pixelCount: count
     }
   })
 })
 
-const handleColorSelect = (colorKey: string) => {
-  selectedColor.value = colorKey
-  const { r, g, b } = parseColorKey(colorKey)
-  newColorValue.value = { r, g, b }
+const handleColorSelect = (color: typeof colorList.value[number]) => {
+  selectedColor.value = color
+  newColorValue.value = { ...color.rgb }
 }
 
 const selectedColorHex = computed(() => {
@@ -37,10 +38,14 @@ const selectedColorHex = computed(() => {
 const handleColorChange = () => {
   if (selectedColor.value) {
     const newHex = selectedColorHex.value
-    const originalColor = parseColorKey(selectedColor.value)
-    emit('colorChanged', originalColor, newHex)
+    emit('colorChanged', selectedColor.value.rgb, newHex)
     const newColorKey = `${newColorValue.value.r},${newColorValue.value.g},${newColorValue.value.b}`
-    selectedColor.value = newColorKey
+    selectedColor.value = {
+      key: newColorKey,
+      rgb: { ...newColorValue.value },
+      hexColor: newHex,
+      pixelCount: selectedColor.value.pixelCount
+    }
   }
 }
 
@@ -48,23 +53,33 @@ const updateRgbValue = (channel: 'r' | 'g' | 'b', value: number) => {
   newColorValue.value[channel] = value
   handleColorChange()
 }
+
+const formatPixelCount = (count: number) => {
+  if (count >= 1000000) {
+    return `${(count / 1000000).toFixed(1)}M px`
+  }
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}K px`
+  }
+  return `${count} px`
+}
 </script>
 
 <template>
   <div class="w-full flex flex-col h-full">
     <div class="flex-1 max-h-[512px] overflow-y-auto">
       <div class="flex flex-wrap gap-3">
-        <UTooltip v-for="color in colorList" :key="color.key" :text="`RGB(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})`">
+        <UTooltip v-for="color in colorList" :key="color.key" :text="`RGB(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}) - ${formatPixelCount(color.pixelCount)}`">
           <button
             class="w-10 h-10 rounded-full border-2 transition-colors relative"
             :class="[
-              selectedColor === color.key 
+              selectedColor === color 
                 ? 'border-white ring-2 ring-white/50' 
                 : 'border-gray-600 hover:border-white/70'
             ]"
             :style="{ backgroundColor: color.hexColor }"
             :aria-label="`Select color ${color.hexColor}`"
-            @click="handleColorSelect(color.key)"
+            @click="handleColorSelect(color)"
           />
         </UTooltip>
       </div>
@@ -76,6 +91,9 @@ const updateRgbValue = (channel: 'r' | 'g' | 'b', value: number) => {
         <div>
           <div class="text-sm text-gray-300 mb-1">Selected Color</div>
           <div class="text-white font-mono">{{ selectedColorHex }}</div>
+          <div class="text-sm text-gray-400">
+            {{ formatPixelCount(selectedColor.pixelCount) }}
+          </div>
         </div>
       </div>
 
