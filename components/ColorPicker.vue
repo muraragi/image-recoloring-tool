@@ -8,12 +8,10 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   colorChanged: [originalColor: string, newColor: string]
-  colorChanging: [originalColor: string, newColor: string]
 }>()
 
 const selectedColor = ref<string | null>(null)
 const newColorValue = ref({ r: 0, g: 0, b: 0 })
-const isChanging = ref(false)
 
 // Convert colorMap to array for easier rendering
 const colorList = computed(() => {
@@ -40,28 +38,20 @@ const selectedColorHex = computed(() => {
   return rgbToHex(newColorValue.value.r, newColorValue.value.g, newColorValue.value.b)
 })
 
-// Debounced function to emit color changes
-const debouncedColorChange = debounce((color: string, newValue: string) => {
-  isChanging.value = false
-  emit('colorChanged', color, newValue)
-  // Update selected color to the new color after change is complete
-  const newColorKey = `${newColorValue.value.r},${newColorValue.value.g},${newColorValue.value.b}`
-  selectedColor.value = newColorKey
-}, 300)
-
-// Function to emit color changing events in real-time
-const handleColorChanging = () => {
+// Function to emit color changes
+const handleColorChange = () => {
   if (selectedColor.value) {
-    isChanging.value = true
     const newHex = selectedColorHex.value
-    emit('colorChanging', selectedColor.value, newHex)
-    debouncedColorChange(selectedColor.value, newHex)
+    emit('colorChanged', selectedColor.value, newHex)
+    // Update selected color to the new color after change is complete
+    const newColorKey = `${newColorValue.value.r},${newColorValue.value.g},${newColorValue.value.b}`
+    selectedColor.value = newColorKey
   }
 }
 
 const updateRgbValue = (channel: 'r' | 'g' | 'b', value: number) => {
   newColorValue.value[channel] = value
-  handleColorChanging()
+  handleColorChange()
 }
 </script>
 
@@ -144,11 +134,6 @@ const updateRgbValue = (channel: 'r' | 'g' | 'b', value: number) => {
 
     <div v-else class="p-4 text-center text-gray-400">
       Select a color to edit
-    </div>
-    
-    <div v-if="isChanging" class="mt-2 text-xs text-amber-400 flex items-center gap-1">
-      <UIcon name="i-heroicons-arrow-path" class="animate-spin h-3 w-3" />
-      Updating image...
     </div>
   </div>
 </template>

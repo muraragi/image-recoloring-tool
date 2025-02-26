@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useImageCanvas } from '~/composables/useImageCanvas'
-import { parseColorKey, hexToRgb } from '~/utils/colorUtils'
+import { hexToRgb } from '~/utils/colorUtils'
+import { processColorChange } from '~/utils/imageProcessing'
 
 const props = defineProps<{
   imageUrl: string
@@ -50,85 +51,29 @@ watch(imageData, (newImageData) => {
   }
 }, { immediate: true })
 
-// Handle real-time color changes (preview)
-const handleColorChanging = (originalColorKey: string, newColorHex: string) => {
-  isProcessing.value = true
-  processingProgress.value = 0
-  
-  // For real-time preview, use a simpler/faster approach with fewer pixels
-  applyColorChange(originalColorKey, newColorHex, true)
-}
-
-// Handle final color changes
-const handleColorChanged = (originalColorKey: string, newColorHex: string) => {
-  isProcessing.value = true
-  processingProgress.value = 0
-  
-  // For final changes, use the async processor with all pixels
-  applyColorChange(originalColorKey, newColorHex, false)
-}
-
-const applyColorChange = (originalColorKey: string, newColorHex: string, isPreview: boolean) => {
+const handleColorChanged = async (originalColorKey: string, newColorHex: string) => {
   if (!imageData.value) return
   
-  // Parse the original color
-  const { r: origR, g: origG, b: origB } = parseColorKey(originalColorKey)
+  isProcessing.value = true
+  processingProgress.value = 0
   
-  // Parse the new color from hex
   const { r, g, b } = hexToRgb(newColorHex)
-  
-  // Get the pixels to update
   const pixelsToUpdate = colorMap.value.get(originalColorKey) || []
-  
-  // For preview, use a subset of pixels for better performance
-  const pixelsToProcess = isPreview 
-    ? pixelsToUpdate.filter((_, i) => i % 10 === 0) // Use only 10% of pixels for preview
-    : pixelsToUpdate
-  
-  // For better performance, use the last processed image if available
   const baseImageData = lastProcessedImageData.value || originalImageData.value || imageData.value
-  
-  if (isPreview) {
-    // For preview, do a quick update
-    const newImageData = new ImageData(
-      new Uint8ClampedArray(baseImageData.data),
-      baseImageData.width,
-      baseImageData.height
-    )
-    
-    // Update a subset of pixels
-    for (const pixel of pixelsToProcess) {
-      const pixelIndex = (pixel.y * newImageData.width + pixel.x) * 4
-      newImageData.data[pixelIndex] = r
-      newImageData.data[pixelIndex + 1] = g
-      newImageData.data[pixelIndex + 2] = b
+
+  const newImageData = await processColorChange(
+    baseImageData,
+    pixelsToUpdate,
+    { r, g, b },
+    (progress) => {
+      processingProgress.value = progress
     }
-    
-    // Update the canvas with the new image data
-    updateCanvas(newImageData)
-    isProcessing.value = false
-  } else {
-    // For final changes, use the async processor
-    processColorChangeAsync(
-      baseImageData,
-      pixelsToUpdate,
-      { r, g, b },
-      (progress) => {
-        processingProgress.value = progress
-      },
-      (newImageData) => {
-        // Update the canvas with the new image data
-        updateCanvas(newImageData)
-        
-        // Store the processed image data for future operations
-        lastProcessedImageData.value = newImageData
-        
-        // Reset processing state
-        isProcessing.value = false
-        processingProgress.value = 0
-      }
-    )
-  }
+  )
+
+  updateCanvas(newImageData)
+  lastProcessedImageData.value = newImageData
+  isProcessing.value = false
+  processingProgress.value = 0
 }
 </script>
 
@@ -183,7 +128,6 @@ const applyColorChange = (originalColorKey: string, newColorHex: string, isPrevi
       <ColorPicker
         :color-map="colorMap"
         @color-changed="handleColorChanged"
-        @color-changing="handleColorChanging"
       />
     </UCard>
   </div>
