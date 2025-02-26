@@ -1,13 +1,13 @@
 import { ref, watch } from 'vue'
 
-export type ColorMap = Map<string, Array<{ x: number; y: number }>>
+export type ColorMap = Record<string, Array<{ x: number; y: number }>>
 
 export function useImageCanvas(imageUrlRef: Ref<string>) {
   const canvasRef = ref<HTMLCanvasElement | null>(null)
   const ctx = ref<CanvasRenderingContext2D | null>(null)
   const imageData = ref<ImageData | null>(null)
   const isCanvasReady = ref(false)
-  const colorMap = ref<ColorMap>(new Map())
+  const colorMap = ref<ColorMap>({})
   const colorQuantizationLevel = ref(8) // 8 levels per channel (reduces 16M+ colors to ~4k)
 
   const loadImageToCanvas = async () => {
@@ -65,7 +65,7 @@ export function useImageCanvas(imageUrlRef: Ref<string>) {
   const generateColorMap = () => {
     if (!imageData.value) return
 
-    const newColorMap = new Map<string, Array<{ x: number; y: number }>>()
+    const newColorMap: ColorMap = {}
     const data = imageData.value.data
     const width = imageData.value.width
     const levels = colorQuantizationLevel.value
@@ -81,16 +81,16 @@ export function useImageCanvas(imageUrlRef: Ref<string>) {
 
         const colorKey = `${r},${g},${b}`
 
-        if (!newColorMap.has(colorKey)) {
-          newColorMap.set(colorKey, [])
+        if (!newColorMap[colorKey]) {
+          newColorMap[colorKey] = []
         }
 
-        newColorMap.get(colorKey)!.push({ x, y })
+        newColorMap[colorKey].push({ x, y })
       }
     }
 
     colorMap.value = newColorMap
-    console.log(`Color map generated with ${newColorMap.size} unique colors`, newColorMap)
+    console.log(`Color map generated with ${Object.keys(newColorMap).length} unique colors`, newColorMap)
   }
 
   const updateCanvas = (newImageData: ImageData | null = null) => {

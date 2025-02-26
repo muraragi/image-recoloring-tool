@@ -15,9 +15,9 @@ const newColorValue = ref({ r: 0, g: 0, b: 0 })
 
 // Convert colorMap to array for easier rendering
 const colorList = computed(() => {
-  return Array.from(props.colorMap.keys()).map(colorKey => {
+  return Object.entries(props.colorMap).map(([colorKey, pixels]) => {
     const { r, g, b } = parseColorKey(colorKey)
-    const pixelCount = props.colorMap.get(colorKey)?.length || 0
+    const pixelCount = pixels.length
     return {
       key: colorKey,
       rgb: { r, g, b },

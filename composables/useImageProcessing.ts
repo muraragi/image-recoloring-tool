@@ -6,6 +6,7 @@ import { useImageCanvas } from '~/composables/useImageCanvas'
 export function useImageProcessing(imageUrl: string) {
   const originalImageData = ref<ImageData | null>(null)
   const lastProcessedImageData = ref<ImageData | null>(null)
+  const processingProgress = ref(0)
 
   const {
     canvasRef,
@@ -13,7 +14,8 @@ export function useImageProcessing(imageUrl: string) {
     initCanvas,
     colorMap,
     imageData,
-    updateCanvas
+    updateCanvas,
+    generateColorMap
   } = useImageCanvas(computed(() => imageUrl))
 
   watch(imageData, (newImageData) => {
@@ -30,17 +32,21 @@ export function useImageProcessing(imageUrl: string) {
     if (!imageData.value) return
     
     const { r, g, b } = hexToRgb(newColorHex)
-    const pixelsToUpdate = colorMap.value.get(originalColorKey) || []
+    const pixelsToUpdate = colorMap.value[originalColorKey] || []
     const baseImageData = lastProcessedImageData.value || originalImageData.value || imageData.value
 
     const newImageData = await processColorChange(
       baseImageData,
       pixelsToUpdate,
-      { r, g, b }
+      { r, g, b },
+      (progress) => {
+        processingProgress.value = progress
+      }
     )
 
     updateCanvas(newImageData)
     lastProcessedImageData.value = newImageData
+    generateColorMap()
   }
 
   return {
@@ -48,6 +54,7 @@ export function useImageProcessing(imageUrl: string) {
     canvasRef,
     isCanvasReady,
     initCanvas,
-    colorMap
+    colorMap,
+    processingProgress
   }
 } 
