@@ -17,7 +17,7 @@ useHead({
 </script>
 
 <template>
-  <div class="container mx-auto px-6 py-10 max-w-7xl">
+  <div class="container mx-auto px-8 py-12 max-w-[90rem]">
     <h1 class="text-4xl font-bold text-center mb-8 text-white">Image Recoloring Tool</h1>
 
     <div v-if="!hasImage">

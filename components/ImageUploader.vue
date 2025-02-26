@@ -33,7 +33,7 @@ const onDragLeave = () => {
 </script>
 
 <template>
-  <UCard class="w-full max-w-2xl mx-auto bg-gray-800 text-white border-gray-700 shadow-xl">
+  <UCard class="w-full max-w-5xl mx-auto bg-gray-800 text-white border-gray-700 shadow-xl">
     <template #header>
       <div class="text-xl font-semibold text-white py-1">Upload an Image</div>
     </template>
@@ -58,11 +58,11 @@ const onDragLeave = () => {
       >
       <label 
         for="image-upload" 
-        class="cursor-pointer block p-6"
+        class="cursor-pointer block p-12"
         :class="{ 'opacity-50 cursor-not-allowed': isProcessing }"
       >
-        <UIcon name="i-heroicons-photo" class="text-5xl mb-3 text-gray-300" />
-        <div class="text-lg text-gray-300">Click to select an image or drag and drop</div>
+        <UIcon name="i-heroicons-photo" class="text-7xl mb-4 text-gray-300" />
+        <div class="text-xl text-gray-300">Click to select an image or drag and drop</div>
         <div v-if="isDragging" class="text-blue-400 mt-3 font-medium text-lg">Drop to upload</div>
       </label>
     </div>
