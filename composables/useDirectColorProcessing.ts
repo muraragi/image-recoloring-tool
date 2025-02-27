@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { quantizeColor, colorDistance } from '~/utils/colorUtils'
+import { DEFAULT_SIMILARITY_THRESHOLD } from '~/composables/useColorSelection'
 
 export type ColorCount = {
   color: string
@@ -34,7 +35,7 @@ export function useDirectColorProcessing(imageData: Ref<ImageData | null>) {
     originalColor: { r: number; g: number; b: number },
     newColor: { r: number; g: number; b: number },
     includeSimilar = false,
-    similarityThreshold = 30,
+    similarityThreshold = DEFAULT_SIMILARITY_THRESHOLD,
     onProgress?: (progress: number) => void
   ) => {
     if (!imageData.value) return null

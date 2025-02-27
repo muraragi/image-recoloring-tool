@@ -9,10 +9,12 @@ export type ColorInfo = {
   pixelCount: number
 }
 
+export const DEFAULT_SIMILARITY_THRESHOLD = 100
+
 const selectedColor = ref<ColorInfo | null>(null)
 const newColorValue = ref({ r: 0, g: 0, b: 0 })
 const includeSimilarColors = ref(false)
-const similarityThreshold = ref(80)
+const similarityThreshold = ref(DEFAULT_SIMILARITY_THRESHOLD)
 
 export function useColorSelection() {
   const selectedColorHex = computed(() => {
@@ -58,7 +60,7 @@ export function useColorSelection() {
     selectedColor.value = null
     Object.assign(newColorValue.value, { r: 0, g: 0, b: 0 })
     includeSimilarColors.value = false
-    similarityThreshold.value = 30
+    similarityThreshold.value = DEFAULT_SIMILARITY_THRESHOLD
   }
 
   return {
