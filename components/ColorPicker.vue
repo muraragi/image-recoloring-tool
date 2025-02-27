@@ -5,6 +5,7 @@ import { hexToRgb } from '~/utils/colorUtils'
 const props = defineProps<{
   modelValue: string
   disabled?: boolean
+  isProcessing?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -21,6 +22,8 @@ const isDraggingSatVal = ref(false)
 const isDraggingHue = ref(false)
 const pickerIndicatorPosition = ref({ x: 0, y: 0 })
 const hexValue = ref(props.modelValue)
+
+const isDisabled = computed(() => props.disabled || props.isProcessing)
 
 const hueColor = computed(() => {
   return `hsl(${hue.value}, 100%, 50%)`
@@ -134,7 +137,7 @@ const updatePickerPosition = () => {
 }
 
 const handleSatValMouseDown = (e: MouseEvent) => {
-  if (!pickerArea.value || props.disabled) return
+  if (!pickerArea.value || isDisabled.value) return
   
   isDraggingSatVal.value = true
   handleSatValMouseMove(e)
@@ -167,7 +170,7 @@ const handleSatValMouseMove = (e: MouseEvent) => {
 }
 
 const handleHueMouseDown = (e: MouseEvent) => {
-  if (!hueSlider.value || props.disabled) return
+  if (!hueSlider.value || isDisabled.value) return
   
   isDraggingHue.value = true
   handleHueMouseMove(e)
@@ -221,7 +224,7 @@ onMounted(() => {
       <div 
         ref="pickerArea"
         class="w-full h-40 rounded-lg cursor-crosshair relative mb-4"
-        :class="{ 'opacity-50 pointer-events-none': disabled }"
+        :class="{ 'opacity-50 pointer-events-none': isDisabled }"
         :style="{ background: satValBackground }"
         @mousedown="handleSatValMouseDown"
       >
@@ -238,7 +241,7 @@ onMounted(() => {
       <div 
         ref="hueSlider"
         class="w-full h-6 rounded-lg cursor-pointer relative mb-4"
-        :class="{ 'opacity-50 pointer-events-none': disabled }"
+        :class="{ 'opacity-50 pointer-events-none': isDisabled }"
         style="background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);"
         @mousedown="handleHueMouseDown"
       >
@@ -260,7 +263,7 @@ onMounted(() => {
           v-model="hexValue"
           placeholder="#RRGGBB"
           class="font-mono"
-          :disabled="disabled"
+          :disabled="isDisabled"
           @change="handleHexInput(hexValue)"
         />
       </div>

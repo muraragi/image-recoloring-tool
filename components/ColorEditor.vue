@@ -4,6 +4,7 @@ import { useColorSelection, type ColorInfo } from '~/composables/useColorSelecti
 
 const props = defineProps<{
   colors: ColorCount[]
+  isProcessing?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -70,6 +71,7 @@ const formatPixelCount = (count: number) => {
           ]"
           :style="{ backgroundColor: color.hexColor }"
           :aria-label="`Select color ${color.hexColor}`"
+          :disabled="props.isProcessing"
           @click="handleColorSelect(color)"
         />
       </UTooltip>
@@ -80,13 +82,14 @@ const formatPixelCount = (count: number) => {
         <ColorPicker 
           v-model="selectedColorHex" 
           :disabled="!selectedColor"
+          :is-processing="props.isProcessing"
           @color-change="handlePickerColorChange"
         />
 
         <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <UCheckbox v-model="includeSimilarColors" class="h-5 w-5" />
+              <UCheckbox v-model="includeSimilarColors" class="h-5 w-5" :disabled="props.isProcessing" />
               <span class="text-sm font-medium text-gray-200">Recolor similar colors</span>
             </div>
             <UBadge v-if="includeSimilarColors" color="primary" variant="subtle" size="sm">
@@ -102,6 +105,7 @@ const formatPixelCount = (count: number) => {
               :step="1"
               color="primary"
               class="flex-1"
+              :disabled="props.isProcessing"
             />
             <div class="flex justify-between items-center">
               <span class="text-xs text-gray-400">Similarity Threshold</span>

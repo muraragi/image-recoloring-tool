@@ -140,6 +140,7 @@ const processingProgress = ref(0)
       </template>
       <ColorEditor
         :colors="quantizedColors"
+        :is-processing="isProcessing"
         @color-changed="handleColorChanged"
       />
     </UCard>
