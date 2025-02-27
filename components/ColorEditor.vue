@@ -59,7 +59,7 @@ const formatPixelCount = (count: number) => {
 </script>
 
 <template>
-  <div class="w-full flex flex-col h-full">
+  <div class="w-full flex flex-col h-full gap-4">
     <div class="flex-1 max-h-[512px] overflow-y-auto">
       <div class="flex flex-wrap gap-3">
         <UTooltip v-for="color in colorList" :key="color.key" :text="`RGB(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}) - ${formatPixelCount(color.pixelCount)}`">
@@ -79,23 +79,18 @@ const formatPixelCount = (count: number) => {
     </div>
 
     <div v-if="selectedColor" :key="selectedColor ? selectedColor.key : 'no-selection'">
-      <div class="flex items-center gap-4 mb-4 mt-8">
-        <div class="w-12 h-12 rounded-lg" :style="{ backgroundColor: selectedColorHex }" />
-        <div>
-          <div class="text-sm text-gray-300 mb-1">Selected Color</div>
-          <div class="text-white font-mono">{{ selectedColorHex }}</div>
-          <div class="text-sm text-gray-400">
-            {{ formatPixelCount(selectedColor.pixelCount) }}
-          </div>
-        </div>
-      </div>
+      <div class="space-y-4">        
+        <ColorPicker 
+          v-model="selectedColorHex" 
+          :disabled="!selectedColor"
+          @color-change="handlePickerColorChange"
+        />
 
-      <div class="space-y-4">
         <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <UCheckbox v-model="includeSimilarColors" class="h-5 w-5" />
-              <span class="text-sm font-medium text-gray-200">Include similar colors</span>
+              <span class="text-sm font-medium text-gray-200">Recolor similar colors</span>
             </div>
             <UBadge v-if="includeSimilarColors" color="primary" variant="subtle" size="sm">
               Active
@@ -103,10 +98,6 @@ const formatPixelCount = (count: number) => {
           </div>
 
           <div v-if="includeSimilarColors" class="space-y-2 mt-4">
-            <div class="flex justify-between items-center">
-              <span class="text-xs text-gray-400">Similarity Threshold</span>
-              <UBadge color="white" variant="subtle" size="xs">{{ similarityThreshold }}%</UBadge>
-            </div>
             <URange
               v-model="similarityThreshold"
               :min="1"
@@ -115,15 +106,12 @@ const formatPixelCount = (count: number) => {
               color="primary"
               class="flex-1"
             />
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-gray-400">Similarity Threshold</span>
+              <UBadge color="white" variant="subtle" size="xs">{{ similarityThreshold }}%</UBadge>
+            </div>
           </div>
         </div>
-
-        <!-- Color Picker -->
-        <ColorPicker 
-          v-model="selectedColorHex" 
-          :disabled="!selectedColor"
-          @color-change="handlePickerColorChange"
-        />
       </div>
     </div>
 
