@@ -138,7 +138,7 @@ const processingProgress = ref(0)
       <template #header>
         <div class="text-xl font-medium text-white py-1">Color Editor</div>
       </template>
-      <ColorPicker
+      <ColorEditor
         :colors="quantizedColors"
         @color-changed="handleColorChanged"
       />
