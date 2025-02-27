@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import { useImageCanvas } from '~/composables/useImageCanvas'
 import { useDirectColorProcessing } from '~/composables/useDirectColorProcessing'
 import { useImageDownload } from '~/composables/useImageDownload'
+import { useColorSelection } from '~/composables/useColorSelection'
 import { hexToRgb } from '~/utils/colorUtils'
 
 const props = defineProps<{
@@ -31,7 +32,10 @@ const {
   isCanvasReady, 
   initCanvas,
   imageData,
-  updateCanvas
+  updateCanvas,
+  canUndo,
+  saveToHistory,
+  undo
 } = useImageCanvas(computed(() => props.imageUrl))
 
 const {
@@ -39,9 +43,15 @@ const {
   applyColorChange
 } = useDirectColorProcessing(imageData)
 
+const { resetSelection } = useColorSelection()
+
 onMounted(() => {
   initCanvas()
 })
+
+const handleUndo = () => {
+  undo(resetSelection)
+}
 
 const handleColorChanged = async (
   originalColor: { r: number, g: number, b: number },
@@ -50,6 +60,9 @@ const handleColorChanged = async (
   similarityThreshold: number
 ) => {
   isProcessing.value = true
+  
+  saveToHistory()
+  
   const newColor = hexToRgb(newColorHex)
   const newImageData = await applyColorChange(
     originalColor,
@@ -76,6 +89,15 @@ const processingProgress = ref(0)
         <div class="flex justify-between items-center">
           <div class="text-xl font-medium text-white">Image Preview</div>
           <div class="flex items-center gap-2">
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-arrow-uturn-left"
+              size="md"
+              :disabled="!canUndo || isProcessing"
+              aria-label="Undo changes"
+              @click="handleUndo"
+            />
             <UButton
               color="gray"
               variant="ghost"

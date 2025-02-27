@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { parseColorKey, rgbToHex } from '~/utils/colorUtils'
 import type { ColorCount } from '~/composables/useDirectColorProcessing'
+import { useColorSelection, type ColorInfo } from '~/composables/useColorSelection'
 
 const props = defineProps<{
   colors: ColorCount[]
@@ -10,49 +11,38 @@ const emit = defineEmits<{
   colorChanged: [originalColor: { r: number, g: number, b: number }, newColor: string, includeSimilar: boolean, similarityThreshold: number]
 }>()
 
-const selectedColor = ref<null | { key: string; rgb: { r: number; g: number; b: number }; hexColor: string; pixelCount: number }>(null)
-const newColorValue = ref({ r: 0, g: 0, b: 0 })
-const includeSimilarColors = ref(false)
-const similarityThreshold = ref(30)
+const {
+  selectedColor,
+  newColorValue,
+  includeSimilarColors,
+  similarityThreshold,
+  selectedColorHex,
+  formatColorList,
+  selectColor,
+  updateColorValue,
+  updateSelectedColorAfterChange
+} = useColorSelection()
 
-const colorList = computed(() => {
-  return props.colors.map(({ color, count }) => {
-    const { r, g, b } = parseColorKey(color)
-    return {
-      key: color,
-      rgb: { r, g, b },
-      hexColor: rgbToHex(r, g, b),
-      pixelCount: count
-    }
-  })
-})
+const colorList = computed(() => formatColorList(props.colors))
 
-const handleColorSelect = (color: typeof colorList.value[number]) => {
-  selectedColor.value = color
-  newColorValue.value = { ...color.rgb }
+const handleColorSelect = (color: ColorInfo) => {
+  selectColor(color)
 }
-
-const selectedColorHex = computed(() => {
-  if (!newColorValue.value) return '#000000'
-  return rgbToHex(newColorValue.value.r, newColorValue.value.g, newColorValue.value.b)
-})
 
 const handleColorChange = () => {
   if (selectedColor.value) {
-    const newHex = selectedColorHex.value
-    emit('colorChanged', selectedColor.value.rgb, newHex, includeSimilarColors.value, similarityThreshold.value)
-    const newColorKey = `${newColorValue.value.r},${newColorValue.value.g},${newColorValue.value.b}`
-    selectedColor.value = {
-      key: newColorKey,
-      rgb: { ...newColorValue.value },
-      hexColor: newHex,
-      pixelCount: selectedColor.value.pixelCount
-    }
+    emit('colorChanged', 
+      selectedColor.value.rgb, 
+      selectedColorHex.value, 
+      includeSimilarColors.value, 
+      similarityThreshold.value
+    )
+    updateSelectedColorAfterChange()
   }
 }
 
 const updateRgbValue = (channel: 'r' | 'g' | 'b', value: number) => {
-  newColorValue.value[channel] = value
+  updateColorValue(channel, value)
   handleColorChange()
 }
 
@@ -87,7 +77,7 @@ const formatPixelCount = (count: number) => {
       </div>
     </div>
 
-    <div v-if="selectedColor">
+    <div v-if="selectedColor" :key="selectedColor ? selectedColor.key : 'no-selection'">
       <div class="flex items-center gap-4 mb-4 mt-8">
         <div class="w-12 h-12 rounded-lg" :style="{ backgroundColor: selectedColorHex }" />
         <div>

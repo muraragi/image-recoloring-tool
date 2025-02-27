@@ -25,7 +25,6 @@ export function useDirectColorProcessing(imageData: Ref<ImageData | null>) {
       colorCounts.set(colorKey, (colorCounts.get(colorKey) || 0) + 1)
     }
 
-    // Convert to array and sort by count
     return Array.from(colorCounts.entries())
       .map(([color, count]) => ({ color, count }))
       .sort((a, b) => b.count - a.count)
@@ -51,7 +50,6 @@ export function useDirectColorProcessing(imageData: Ref<ImageData | null>) {
     const totalPixels = data.length / 4
     const batchSize = 5000
 
-    // Pre-quantize the original color we're looking for
     const targetR = quantizeColor(originalColor.r, levels)
     const targetG = quantizeColor(originalColor.g, levels)
     const targetB = quantizeColor(originalColor.b, levels)
@@ -60,7 +58,6 @@ export function useDirectColorProcessing(imageData: Ref<ImageData | null>) {
       const end = Math.min(i + batchSize * 4, data.length)
 
       for (let j = i; j < end; j += 4) {
-        // Quantize the current pixel color
         const currentR = quantizeColor(data[j], levels)
         const currentG = quantizeColor(data[j + 1], levels)
         const currentB = quantizeColor(data[j + 2], levels)
