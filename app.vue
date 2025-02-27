@@ -1,10 +1,6 @@
-<template>
-  <div class="min-h-screen bg-gray-900 text-white">
-    <ImageRecolorApp />
-  </div>
-</template>
-
 <script setup>
+import { Analytics } from '@vercel/analytics/nuxt'
+
 useHead({
   link: [
     { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
@@ -15,3 +11,10 @@ useHead({
   ]
 })
 </script>
+
+<template>
+  <Analytics />
+  <div class="min-h-screen bg-gray-900 text-white">
+    <ImageRecolorApp />
+  </div>
+</template>
