@@ -1,6 +1,25 @@
-# Nuxt Minimal Starter
+# Image Recoloring Tool
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A modern web application that allows users to upload images and selectively recolor specific colors within the image. The tool provides an intuitive interface for selecting colors from the image and changing them to new colors with real-time preview.
+
+## Features
+
+- Image upload and processing
+- Color quantization and extraction from images
+- Interactive color selection and editing
+- Similar color detection and batch recoloring
+- Real-time image preview
+- Processing progress indication
+- Undo functionality
+- Download recolored images
+
+## Technology Stack
+
+- **Framework**: [Nuxt 3](https://nuxt.com/) (Vue.js)
+- **UI Components**: [Nuxt UI](https://ui.nuxt.com/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Language**: TypeScript
+- **Image Processing**: Canvas API
 
 ## Setup
 
