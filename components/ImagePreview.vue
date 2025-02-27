@@ -119,7 +119,7 @@ const processingProgress = ref(0)
         </div>
       </template>
 
-      <div class="relative bg-gray-900 flex justify-center">
+      <div class="relative -my-5 bg-gray-900 flex justify-center">
         <canvas ref="canvasRef" class="max-w-full max-h-[70vh] object-contain py-6" />
 
         <div v-if="!isCanvasReady" class="absolute inset-0 flex items-center justify-center bg-black/30">

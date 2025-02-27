@@ -12,7 +12,7 @@ export type ColorInfo = {
 const selectedColor = ref<ColorInfo | null>(null)
 const newColorValue = ref({ r: 0, g: 0, b: 0 })
 const includeSimilarColors = ref(false)
-const similarityThreshold = ref(30)
+const similarityThreshold = ref(80)
 
 export function useColorSelection() {
   const selectedColorHex = computed(() => {

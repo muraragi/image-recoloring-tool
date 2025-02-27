@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { parseColorKey, rgbToHex } from '~/utils/colorUtils'
 import type { ColorCount } from '~/composables/useDirectColorProcessing'
 import { useColorSelection, type ColorInfo } from '~/composables/useColorSelection'
 
@@ -59,23 +58,21 @@ const formatPixelCount = (count: number) => {
 </script>
 
 <template>
-  <div class="w-full flex flex-col h-full gap-4">
-    <div class="flex-1 max-h-[512px] overflow-y-auto">
-      <div class="flex flex-wrap gap-3">
-        <UTooltip v-for="color in colorList" :key="color.key" :text="`RGB(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}) - ${formatPixelCount(color.pixelCount)}`">
-          <button
-            class="w-10 h-10 rounded-full border-2 transition-colors relative"
-            :class="[
-              selectedColor === color 
-                ? 'border-white ring-2 ring-white/50' 
-                : 'border-gray-600 hover:border-white/70'
-            ]"
-            :style="{ backgroundColor: color.hexColor }"
-            :aria-label="`Select color ${color.hexColor}`"
-            @click="handleColorSelect(color)"
-          />
-        </UTooltip>
-      </div>
+  <div class="w-full flex flex-col h-full gap-3">
+    <div class="flex-1 max-h-[600px] flex justify-center flex-wrap gap-2 overflow-y-auto p-1">
+      <UTooltip v-for="color in colorList" :key="color.key" :text="`RGB(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}) - ${formatPixelCount(color.pixelCount)}`">
+        <button
+          class="w-10 h-10 rounded-full border-2 transition-colors relative"
+          :class="[
+            selectedColor?.key === color.key
+              ? 'border-white ring-2 ring-white/50' 
+              : 'border-gray-600 hover:border-white/70'
+          ]"
+          :style="{ backgroundColor: color.hexColor }"
+          :aria-label="`Select color ${color.hexColor}`"
+          @click="handleColorSelect(color)"
+        />
+      </UTooltip>
     </div>
 
     <div v-if="selectedColor" :key="selectedColor ? selectedColor.key : 'no-selection'">

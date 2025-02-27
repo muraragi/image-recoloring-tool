@@ -76,9 +76,9 @@ const rgbToHsv = (r: number, g: number, b: number) => {
   const min = Math.min(r, g, b)
   const delta = max - min
   
-  let h = 0
-  let s = max === 0 ? 0 : delta / max
-  let v = max
+  let h = max === 0 ? 0 : delta / max
+  const s = max === 0 ? 0 : delta / max
+  const v = max
   
   if (delta === 0) {
     h = 0
@@ -232,7 +232,7 @@ onMounted(() => {
             top: `${pickerIndicatorPosition.y}px`,
             boxShadow: '0 0 0 1px rgba(0,0,0,0.3)'
           }"
-        ></div>
+        />
       </div>
       
       <div 
@@ -250,7 +250,7 @@ onMounted(() => {
             border: '2px solid white',
             borderRadius: '4px'
           }"
-        ></div>
+        />
       </div>
     </div>
     

@@ -10,7 +10,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: 'Easily recolor and transform your images with our intuitive tool'
+      content: 'Easily recolor and transform your images with this intuitive tool'
     }
   ]
 })
