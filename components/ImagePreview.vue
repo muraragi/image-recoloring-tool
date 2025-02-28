@@ -83,7 +83,7 @@ const processingProgress = ref(0)
 </script>
 
 <template>
-  <div class="max-w-[90rem] mx-auto grid grid-cols-[1fr_400px]">
+  <div class="max-w-[90rem] mx-auto grid sm:grid-cols-1 md:grid-cols-[1fr_400px]">
     <UCard class="bg-gray-800 border-gray-700 rounded-r-none overflow-hidden shadow-xl">
       <template #header>
         <div class="flex justify-between items-center">
