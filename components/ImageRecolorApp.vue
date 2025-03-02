@@ -5,14 +5,15 @@ const onFileSelected = (event: Event) => {
   handleFileUpload(event)
 }
 
-useHead({
-  title: 'Image Recolor App - Transform Your Images',
-  meta: [
-    {
-      name: 'description',
-      content: 'Easily recolor and transform your images with this intuitive tool'
-    }
-  ]
+useSeoMeta({
+  title: 'Image Recolor App - Transform Your Images Easily',
+  description: 'Easily recolor and transform your images with our intuitive, user-friendly interface. Works best with simple images and illustrations.',
+  ogTitle: 'Image Recolor App - Simple & Intuitive UI',
+  ogDescription: 'Transform your images with our user-friendly recoloring tool. Simple interface, powerful results. Ideal for simple images and illustrations.',
+  ogImage: '/og-image.png',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Image Recolor App - Simple & Intuitive UI',
+  twitterDescription: 'Transform your images with our user-friendly recoloring tool. Works best with simple images and illustrations.',
 })
 </script>
 

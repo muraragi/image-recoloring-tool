@@ -63,13 +63,20 @@ const onDragLeave = () => {
       >
         <UIcon name="i-heroicons-photo" class="text-7xl mb-4 text-gray-300" />
         <div class="text-xl text-gray-300">Click to select an image or drag and drop</div>
+        <div class="text-sm text-blue-300 mt-2">Simple images and illustrations work best</div>
         <div v-if="isDragging" class="text-blue-400 mt-3 font-medium text-lg">Drop to upload</div>
       </label>
     </div>
     
     <template #footer>
-      <div class="text-sm text-gray-400 py-1">
-        Supported formats: JPEG, PNG, WebP, GIF
+      <div class="flex flex-col gap-1">
+        <div class="text-sm text-gray-400 py-1">
+          Supported formats: JPEG, PNG, WebP, GIF
+        </div>
+        <div class="text-sm text-gray-400 py-1">
+          <UIcon name="i-heroicons-information-circle" class="inline-block mr-1" />
+          For best results, use simple images with clear shapes and distinct colors
+        </div>
       </div>
     </template>
   </UCard>
