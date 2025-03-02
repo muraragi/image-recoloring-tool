@@ -73,8 +73,8 @@ const onDragLeave = () => {
         <div class="text-sm text-gray-400 py-1">
           Supported formats: JPEG, PNG, WebP, GIF
         </div>
-        <div class="text-sm text-gray-400 py-1">
-          <UIcon name="i-heroicons-information-circle" class="inline-block mr-1" />
+        <div class="text-sm text-gray-400 py-1 flex gap-1 items-center">
+          <UIcon name="i-heroicons-information-circle" />
           For best results, use simple images with clear shapes and distinct colors
         </div>
       </div>
