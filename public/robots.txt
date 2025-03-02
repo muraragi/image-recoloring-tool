@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://image-recoloring-tool.vercel.app/sitemap.xml 
